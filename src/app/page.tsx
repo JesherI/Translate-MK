@@ -4,7 +4,6 @@ import {
   ArrowRight, 
   Code2, 
   FileText, 
-  FileCode,
   Zap, 
   Shield, 
   ExternalLink,
@@ -13,6 +12,7 @@ import {
   Moon,
   Globe
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import AnimatedBackground from './components/AnimatedBackground';
 import { useTheme } from './hooks/useTheme';
@@ -38,9 +38,13 @@ export default function Home() {
       }`}>
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
-              <FileCode className="w-5 h-5 text-white" />
-            </div>
+            <Image 
+              src="/logo.svg" 
+              alt="Translate-MK Logo" 
+              width={32} 
+              height={32} 
+              className="rounded-lg shadow-lg"
+            />
             <span className={`text-lg font-semibold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
               Translate-MK
             </span>
@@ -84,7 +88,7 @@ export default function Home() {
               <ExternalLink className="w-4 h-4" />
               GitHub
             </a>
-            <span className={`text-sm ${isDark ? 'text-white/40' : 'text-gray-500'}`}>v0.2.0</span>
+            <span className={`text-sm ${isDark ? 'text-white/40' : 'text-gray-500'}`}>v0.1.9</span>
           </div>
         </div>
       </nav>

@@ -13,6 +13,7 @@ import {
   Moon,
   Globe
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import AnimatedBackground from '../components/AnimatedBackground';
 import MarkdownPreview from '../components/MarkdownPreview';
@@ -220,9 +221,13 @@ console.log(greet("World"));
             </Link>
             <div className={`w-px h-4 ${isDark ? 'bg-white/20' : 'bg-gray-300'}`} />
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center">
-                <Code className="w-5 h-5 text-black" />
-              </div>
+              <Image 
+                src="/logo.svg" 
+                alt="Translate-MK Logo" 
+                width={32} 
+                height={32} 
+                className="rounded-lg shadow-lg"
+              />
               <span className="text-lg font-semibold tracking-tight">{t('nav.editor')}</span>
             </div>
           </div>
