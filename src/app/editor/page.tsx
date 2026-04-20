@@ -222,7 +222,7 @@ console.log(greet("World"));
 
       {/* Editor */}
       <section className="py-6 px-6 relative z-10">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto" style={{ height: 'calc(100vh - 140px)' }}>
           {/* Mobile Tabs */}
           <div className="md:hidden flex items-center gap-2 mb-4 p-1 rounded-xl border border-white/10 bg-white/5">
             <button
@@ -250,7 +250,7 @@ console.log(greet("World"));
           </div>
 
           {/* Info Bar - Desktop only */}
-          <div className="hidden md:flex items-center justify-between mb-4 text-sm text-white/40">
+          <div className="hidden md:flex items-center justify-between mb-4 text-sm text-white/40 flex-shrink-0">
             <div className="flex items-center gap-4">
               <span>{markdownText.length} characters</span>
               <span>•</span>
@@ -262,13 +262,13 @@ console.log(greet("World"));
             </div>
           </div>
 
-          {/* Editor Grid */}
-          <div className="grid md:grid-cols-2 gap-6">
+          {/* Editor Grid - Equal Height Panels */}
+          <div className="grid md:grid-cols-2 gap-6 h-[calc(100%-60px)]">
             {/* Markdown Input */}
-            <div className={`group relative ${activeTab === 'preview' ? 'hidden md:block' : ''}`}>
+            <div className={`group relative h-full ${activeTab === 'preview' ? 'hidden md:block' : ''}`}>
               <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity blur-sm" />
-              <div className="relative rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md overflow-hidden h-[calc(100vh-240px)] md:h-[calc(100vh-280px)]">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/5">
+              <div className="relative h-full rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md overflow-hidden flex flex-col">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/5 flex-shrink-0">
                   <span className="text-sm font-medium text-white/60 flex items-center gap-2">
                     <Code className="w-4 h-4 text-blue-400" />
                     Markdown Input
@@ -279,24 +279,24 @@ console.log(greet("World"));
                   value={markdownText}
                   onChange={(e) => handleMarkdownChange(e.target.value)}
                   placeholder="# Start typing your markdown here...\n\n## Features\n- **Bold** and *italic* text\n- `Code` blocks\n- [Links](url)\n- Tables, lists, and more!"
-                  className="w-full h-[calc(100%-48px)] p-4 bg-transparent text-sm font-mono leading-relaxed resize-none focus:outline-none text-white/90 placeholder:text-white/20"
+                  className="flex-1 w-full p-4 bg-transparent text-sm font-mono leading-relaxed resize-none focus:outline-none text-white/90 placeholder:text-white/20"
                   spellCheck={false}
                 />
               </div>
             </div>
 
             {/* Preview Output */}
-            <div className={`group relative ${activeTab === 'edit' ? 'hidden md:block' : ''}`}>
+            <div className={`group relative h-full ${activeTab === 'edit' ? 'hidden md:block' : ''}`}>
               <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity blur-sm" />
-              <div className="relative rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md overflow-hidden h-[calc(100vh-240px)] md:h-[calc(100vh-280px)]">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/5">
+              <div className="relative h-full rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md overflow-hidden flex flex-col">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/5 flex-shrink-0">
                   <span className="text-sm font-medium text-white/60 flex items-center gap-2">
                     <Eye className="w-4 h-4 text-green-400" />
                     Preview
                   </span>
                   <span className="text-xs text-white/40">Rendered Markdown</span>
                 </div>
-                <div className="h-[calc(100%-48px)] p-4 overflow-auto">
+                <div className="flex-1 p-4 overflow-auto">
                   <MarkdownPreview content={markdownText} />
                 </div>
               </div>
@@ -304,16 +304,16 @@ console.log(greet("World"));
           </div>
 
           {/* Tips */}
-          <div className="mt-6 grid md:grid-cols-3 gap-4 text-sm">
-            <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+          <div className="mt-4 grid md:grid-cols-3 gap-4 text-sm flex-shrink-0">
+            <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
               <h4 className="font-medium text-white mb-1">📝 Markdown Syntax</h4>
               <p className="text-white/40">Use # for headers, **bold**, *italic*, `code`, - for lists</p>
             </div>
-            <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+            <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
               <h4 className="font-medium text-white mb-1">💾 Auto-Save</h4>
               <p className="text-white/40">Content is saved to browser storage automatically</p>
             </div>
-            <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+            <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
               <h4 className="font-medium text-white mb-1">📤 Import/Export</h4>
               <p className="text-white/40">Drag & drop files or use the import button</p>
             </div>
