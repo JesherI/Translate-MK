@@ -13,8 +13,8 @@ export const metadata: Metadata = {
   description: "Real-time bidirectional Markdown to plain text converter. Auto-save, file import/export, and beautiful UI.",
   keywords: ["markdown", "converter", "text", "editor", "real-time", "localstorage"],
   icons: {
-    icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
-    shortcut: '/favicon.svg',
+    icon: '/logo.svg',
+    shortcut: '/logo.svg',
   },
 };
 

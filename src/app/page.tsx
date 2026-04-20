@@ -88,7 +88,7 @@ export default function Home() {
               <ExternalLink className="w-4 h-4" />
               GitHub
             </a>
-            <span className={`text-sm ${isDark ? 'text-white/40' : 'text-gray-500'}`}>v0.1.10</span>
+            <span className={`text-sm ${isDark ? 'text-white/40' : 'text-gray-500'}`}>v0.2.0</span>
           </div>
         </div>
       </nav>

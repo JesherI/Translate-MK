@@ -299,9 +299,9 @@ console.log(greet("World"));
         </div>
       </header>
 
-      {/* Editor - Fixed height container */}
+      {/* Editor - Static height container, internal scroll */}
       <section className="py-6 px-6 relative z-10">
-        <div className="max-w-7xl mx-auto h-[calc(100vh-140px)] flex flex-col">
+        <div className="max-w-7xl mx-auto">
           {/* Mobile Tabs */}
           <div className={`md:hidden flex items-center gap-2 mb-4 p-1 rounded-xl border ${isDark ? 'border-white/10 bg-white/5' : 'border-gray-300 bg-gray-100'}`}>
             <button
@@ -341,8 +341,8 @@ console.log(greet("World"));
             </div>
           </div>
 
-          {/* Editor Grid - Fixed height, scrollable content */}
-          <div className="grid md:grid-cols-2 gap-6 flex-1 min-h-0">
+          {/* Editor Grid - Static height with internal scroll only */}
+          <div className="grid md:grid-cols-2 gap-6 h-[400px] md:h-[500px] lg:h-[550px]">
             {/* Markdown Input */}
             <div className={`group relative h-full ${activeTab === 'preview' ? 'hidden md:block' : ''}`}>
               <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity blur-sm" />
