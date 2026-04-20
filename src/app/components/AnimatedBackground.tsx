@@ -2,8 +2,13 @@
 
 import { useEffect, useRef } from 'react';
 
-export default function AnimatedBackground() {
+interface AnimatedBackgroundProps {
+  theme?: 'dark' | 'light';
+}
+
+export default function AnimatedBackground({ theme = 'dark' }: AnimatedBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isDark = theme === 'dark';
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -114,7 +119,11 @@ export default function AnimatedBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ background: 'radial-gradient(ellipse at top, #1a1a2e 0%, #000000 50%, #0a0a0a 100%)' }}
+      style={{ 
+        background: isDark 
+          ? 'radial-gradient(ellipse at top, #1a1a2e 0%, #000000 50%, #0a0a0a 100%)' 
+          : 'radial-gradient(ellipse at top, #f0f4f8 0%, #ffffff 50%, #f8fafc 100%)' 
+      }}
     />
   );
 }

@@ -8,13 +8,20 @@ import {
   Trash2,
   ArrowLeft,
   FileUp,
-  Eye
+  Eye,
+  Sun,
+  Moon,
+  Globe
 } from 'lucide-react';
 import Link from 'next/link';
 import AnimatedBackground from '../components/AnimatedBackground';
 import MarkdownPreview from '../components/MarkdownPreview';
+import { useI18n } from '../hooks/useI18n';
+import { useTheme } from '../hooks/useTheme';
 
 export default function Editor() {
+  const { t, language, toggleLanguage } = useI18n();
+  const { theme, toggleTheme, isDark } = useTheme();
   const [markdownText, setMarkdownText] = useState<string>('');
   const [fileName, setFileName] = useState<string>('');
   const [showImportModal, setShowImportModal] = useState(false);
@@ -28,8 +35,40 @@ export default function Editor() {
     if (savedMarkdown) {
       setMarkdownText(savedMarkdown);
     } else {
-      // Default example content - Professional documentation template
-      const example = `# Project Documentation
+      const example = language === 'es' 
+        ? `# Documentación del Proyecto
+
+## Descripción General
+Este es un **editor profesional de Markdown** con capacidades de vista previa en tiempo real.
+
+## Características
+| Característica | Descripción | Estado |
+|----------------|-------------|--------|
+| Vista Previa | Renderizado instantáneo | ✅ Activo |
+| Auto-Guardado | Almacenamiento automático | ✅ Activo |
+| Resaltado | Bloques de código con formato | ✅ Activo |
+| Exportación | Múltiples formatos | ✅ Activo |
+
+## Ejemplo de Código
+\`\`\`javascript
+// Función de ejemplo
+function saludar(nombre) {
+  return \`¡Hola, \${nombre}!\`;
+}
+
+console.log(saludar("Mundo"));
+\`\`\`
+
+## Empezar
+1. Escribe tu contenido Markdown
+2. Ve la vista previa renderizada
+3. Exporta cuando estés satisfecho
+
+> **Nota:** Todo el contenido se guarda automáticamente en el almacenamiento local.
+
+---
+*Hecho con Next.js y React* ✨`
+        : `# Project Documentation
 
 ## Overview
 This is a **professional Markdown editor** with real-time preview capabilities.
@@ -37,10 +76,10 @@ This is a **professional Markdown editor** with real-time preview capabilities.
 ## Features
 | Feature | Description | Status |
 |---------|-------------|--------|
-| Real-time Preview | Instant rendering as you type | ✅ Active |
-| Auto-Save | Automatic browser storage | ✅ Active |
-| Syntax Highlight | Code blocks with formatting | ✅ Active |
-| Export Options | Multiple format support | ✅ Active |
+| Real-time Preview | Instant rendering | ✅ Active |
+| Auto-Save | Automatic storage | ✅ Active |
+| Syntax Highlight | Code formatting | ✅ Active |
+| Export | Multiple formats | ✅ Active |
 
 ## Code Example
 \`\`\`javascript
@@ -57,7 +96,7 @@ console.log(greet("World"));
 2. View the rendered preview
 3. Export when satisfied
 
-> **Note:** All content is automatically saved to your browser's local storage.
+> **Note:** All content is automatically saved to local storage.
 
 ---
 *Built with Next.js and React* ✨`;
@@ -67,7 +106,7 @@ console.log(greet("World"));
     if (savedFileName) {
       setFileName(savedFileName);
     }
-  }, []);
+  }, [language]);
 
   // Save to localStorage whenever content changes
   useEffect(() => {
@@ -80,7 +119,10 @@ console.log(greet("World"));
   };
 
   const clearAll = () => {
-    if (confirm('Are you sure you want to clear all content?')) {
+    const message = language === 'es' 
+      ? '¿Estás seguro de que quieres borrar todo el contenido?'
+      : 'Are you sure you want to clear all content?';
+    if (confirm(message)) {
       setMarkdownText('');
       setFileName('');
       localStorage.removeItem('translate-mk-markdown');
@@ -112,7 +154,6 @@ console.log(greet("World"));
   </style>
 </head>
 <body>
-<!-- Content would be rendered Markdown here -->
 <pre style="white-space: pre-wrap;">${markdownText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
 </body>
 </html>`;
@@ -160,56 +201,89 @@ console.log(greet("World"));
 
   return (
     <main 
-      className="min-h-screen text-white font-sans selection:bg-white selection:text-black relative"
+      className={`min-h-screen font-sans selection:bg-white selection:text-black relative ${isDark ? 'text-white' : 'text-gray-900'}`}
       onDragOver={(e) => e.preventDefault()}
       onDrop={dropFile}
     >
-      <AnimatedBackground />
+      <AnimatedBackground theme={theme} />
       
       {/* Header */}
-      <header className="border-b border-white/10 backdrop-blur-xl bg-black/30 sticky top-0 z-50">
+      <header className={`border-b backdrop-blur-xl sticky top-0 z-50 ${isDark ? 'border-white/10 bg-black/30' : 'border-gray-200/50 bg-white/70'}`}>
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link 
               href="/" 
-              className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
+              className={`flex items-center gap-2 transition-colors ${isDark ? 'text-white/60 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
             >
               <ArrowLeft className="w-4 h-4" />
-              Back
+              {t('nav.back')}
             </Link>
-            <div className="w-px h-4 bg-white/20" />
+            <div className={`w-px h-4 ${isDark ? 'bg-white/20' : 'bg-gray-300'}`} />
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center">
                 <Code className="w-5 h-5 text-black" />
               </div>
-              <span className="text-lg font-semibold tracking-tight">Translate-MK Editor</span>
+              <span className="text-lg font-semibold tracking-tight">{t('nav.editor')}</span>
             </div>
           </div>
           
           <div className="flex items-center gap-3">
             <input
               type="text"
-              placeholder="Document name..."
+              placeholder={t('editor.documentName')}
               value={fileName}
               onChange={(e) => setFileName(e.target.value)}
-              className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/30"
+              className={`px-3 py-1.5 rounded-lg border text-sm focus:outline-none focus:border-opacity-50 ${
+                isDark 
+                  ? 'bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-white/30' 
+                  : 'bg-gray-100 border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-gray-400'
+              }`}
             />
             <button
               onClick={() => setShowImportModal(true)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-white/60 hover:text-white hover:border-white/30 transition-all text-sm"
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm transition-all ${
+                isDark 
+                  ? 'border-white/10 text-white/60 hover:text-white hover:border-white/30' 
+                  : 'border-gray-300 text-gray-600 hover:text-gray-900 hover:border-gray-400'
+              }`}
             >
               <Upload className="w-4 h-4" />
-              Import
+              {t('editor.import')}
             </button>
-            <div className="flex items-center gap-1 rounded-lg border border-white/10 overflow-hidden">
+            <div className={`flex items-center gap-1 rounded-lg border overflow-hidden ${isDark ? 'border-white/10' : 'border-gray-300'}`}>
               <button
                 onClick={() => exportFile('md')}
-                className="flex items-center gap-1 px-3 py-1.5 text-white/60 hover:text-white hover:bg-white/5 transition-all text-sm"
+                className={`flex items-center gap-1 px-3 py-1.5 text-sm transition-all ${
+                  isDark 
+                    ? 'text-white/60 hover:text-white hover:bg-white/5' 
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
               >
                 <Download className="w-4 h-4" />
                 .md
               </button>
             </div>
+            <button
+              onClick={toggleTheme}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm transition-all ${
+                isDark 
+                  ? 'border-white/10 text-white/60 hover:text-white hover:border-white/30' 
+                  : 'border-gray-300 text-gray-600 hover:text-gray-900 hover:border-gray-400'
+              }`}
+            >
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+            <button
+              onClick={toggleLanguage}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm transition-all ${
+                isDark 
+                  ? 'border-white/10 text-white/60 hover:text-white hover:border-white/30' 
+                  : 'border-gray-300 text-gray-600 hover:text-gray-900 hover:border-gray-400'
+              }`}
+            >
+              <Globe className="w-4 h-4" />
+              <span className="uppercase">{language}</span>
+            </button>
             <button
               onClick={clearAll}
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-all text-sm"
@@ -220,17 +294,17 @@ console.log(greet("World"));
         </div>
       </header>
 
-      {/* Editor */}
+      {/* Editor - Fixed height container */}
       <section className="py-6 px-6 relative z-10">
-        <div className="max-w-7xl mx-auto" style={{ height: 'calc(100vh - 140px)' }}>
+        <div className="max-w-7xl mx-auto h-[calc(100vh-140px)] flex flex-col">
           {/* Mobile Tabs */}
-          <div className="md:hidden flex items-center gap-2 mb-4 p-1 rounded-xl border border-white/10 bg-white/5">
+          <div className={`md:hidden flex items-center gap-2 mb-4 p-1 rounded-xl border ${isDark ? 'border-white/10 bg-white/5' : 'border-gray-300 bg-gray-100'}`}>
             <button
               onClick={() => setActiveTab('edit')}
               className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm transition-all ${
                 activeTab === 'edit' 
-                  ? 'bg-white text-black' 
-                  : 'text-white/60 hover:text-white'
+                  ? 'bg-white text-black shadow-sm' 
+                  : isDark ? 'text-white/60 hover:text-white' : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               <Code className="w-4 h-4" />
@@ -240,46 +314,50 @@ console.log(greet("World"));
               onClick={() => setActiveTab('preview')}
               className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm transition-all ${
                 activeTab === 'preview' 
-                  ? 'bg-white text-black' 
-                  : 'text-white/60 hover:text-white'
+                  ? 'bg-white text-black shadow-sm' 
+                  : isDark ? 'text-white/60 hover:text-white' : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               <Eye className="w-4 h-4" />
-              Preview
+              {t('editor.preview')}
             </button>
           </div>
 
           {/* Info Bar - Desktop only */}
-          <div className="hidden md:flex items-center justify-between mb-4 text-sm text-white/40 flex-shrink-0">
+          <div className={`hidden md:flex items-center justify-between mb-4 text-sm ${isDark ? 'text-white/40' : 'text-gray-500'}`}>
             <div className="flex items-center gap-4">
-              <span>{markdownText.length} characters</span>
+              <span>{markdownText.length} {t('editor.characters')}</span>
               <span>•</span>
-              <span>{markdownText.split('\n').length} lines</span>
+              <span>{markdownText.split('\n').length} {t('editor.lines')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              <span>Auto-saving to browser</span>
+              <span>{t('editor.autoSave')}</span>
             </div>
           </div>
 
-          {/* Editor Grid - Equal Height Panels */}
-          <div className="grid md:grid-cols-2 gap-6 h-[calc(100%-60px)]">
+          {/* Editor Grid - Fixed height, scrollable content */}
+          <div className="grid md:grid-cols-2 gap-6 flex-1 min-h-0">
             {/* Markdown Input */}
             <div className={`group relative h-full ${activeTab === 'preview' ? 'hidden md:block' : ''}`}>
               <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity blur-sm" />
-              <div className="relative h-full rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md overflow-hidden flex flex-col">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/5 flex-shrink-0">
-                  <span className="text-sm font-medium text-white/60 flex items-center gap-2">
+              <div className={`relative h-full rounded-2xl border backdrop-blur-md overflow-hidden flex flex-col ${isDark ? 'border-white/10 bg-black/40' : 'border-gray-200 bg-white/70'}`}>
+                <div className={`flex items-center justify-between px-4 py-3 border-b flex-shrink-0 ${isDark ? 'border-white/10 bg-white/5' : 'border-gray-200 bg-gray-50'}`}>
+                  <span className={`text-sm font-medium flex items-center gap-2 ${isDark ? 'text-white/60' : 'text-gray-700'}`}>
                     <Code className="w-4 h-4 text-blue-400" />
-                    Markdown Input
+                    {t('editor.markdownInput')}
                   </span>
-                  <span className="text-xs text-white/40">Supports: # ** * ` [] -</span>
+                  <span className={`text-xs ${isDark ? 'text-white/40' : 'text-gray-500'}`}>{t('editor.supports')}</span>
                 </div>
                 <textarea
                   value={markdownText}
                   onChange={(e) => handleMarkdownChange(e.target.value)}
-                  placeholder="# Start typing your markdown here...\n\n## Features\n- **Bold** and *italic* text\n- `Code` blocks\n- [Links](url)\n- Tables, lists, and more!"
-                  className="flex-1 w-full p-4 bg-transparent text-sm font-mono leading-relaxed resize-none focus:outline-none text-white/90 placeholder:text-white/20"
+                  placeholder={t('editor.placeholder')}
+                  className={`flex-1 w-full p-4 text-sm font-mono leading-relaxed resize-none focus:outline-none overflow-auto ${
+                    isDark 
+                      ? 'bg-transparent text-white/90 placeholder:text-white/20' 
+                      : 'bg-transparent text-gray-900 placeholder:text-gray-400'
+                  }`}
                   spellCheck={false}
                 />
               </div>
@@ -288,64 +366,5 @@ console.log(greet("World"));
             {/* Preview Output */}
             <div className={`group relative h-full ${activeTab === 'edit' ? 'hidden md:block' : ''}`}>
               <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity blur-sm" />
-              <div className="relative h-full rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md overflow-hidden flex flex-col">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/5 flex-shrink-0">
-                  <span className="text-sm font-medium text-white/60 flex items-center gap-2">
-                    <Eye className="w-4 h-4 text-green-400" />
-                    Preview
-                  </span>
-                  <span className="text-xs text-white/40">Rendered Markdown</span>
-                </div>
-                <div className="flex-1 p-4 overflow-auto">
-                  <MarkdownPreview content={markdownText} />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Tips */}
-          <div className="mt-4 grid md:grid-cols-3 gap-4 text-sm flex-shrink-0">
-            <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
-              <h4 className="font-medium text-white mb-1">📝 Markdown Syntax</h4>
-              <p className="text-white/40">Use # for headers, **bold**, *italic*, `code`, - for lists</p>
-            </div>
-            <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
-              <h4 className="font-medium text-white mb-1">💾 Auto-Save</h4>
-              <p className="text-white/40">Content is saved to browser storage automatically</p>
-            </div>
-            <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
-              <h4 className="font-medium text-white mb-1">📤 Import/Export</h4>
-              <p className="text-white/40">Drag & drop files or use the import button</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Import Modal */}
-      {showImportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-          <div className="p-8 rounded-2xl border border-white/10 bg-black/90 max-w-md w-full mx-4">
-            <h3 className="text-xl font-semibold text-white mb-4">Import File</h3>
-            <p className="text-white/60 mb-6">Select a .md or .txt file to import</p>
-            <label className="flex flex-col items-center justify-center p-8 rounded-xl border-2 border-dashed border-white/20 hover:border-white/40 transition-colors cursor-pointer">
-              <FileUp className="w-8 h-8 text-white/40 mb-3" />
-              <span className="text-white/60">Click to select file</span>
-              <input
-                type="file"
-                accept=".md,.txt"
-                onChange={handleFileImport}
-                className="hidden"
-              />
-            </label>
-            <button
-              onClick={() => setShowImportModal(false)}
-              className="mt-6 w-full py-2 rounded-lg border border-white/10 text-white/60 hover:text-white hover:border-white/30 transition-all"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-    </main>
-  );
-}
+              <div className={`relative h-full rounded-2xl border backdrop-blur-md overflow-hidden flex flex-col ${isDark ? 'border-white/10 bg-black/40' : 'border-gray-200 bg-white/70'}`}>
+                <div className={`flex items-center justify

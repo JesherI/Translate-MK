@@ -5,11 +5,12 @@ import remarkGfm from 'remark-gfm';
 
 interface MarkdownPreviewProps {
   content: string;
+  isDark?: boolean;
 }
 
-export default function MarkdownPreview({ content }: MarkdownPreviewProps) {
+export default function MarkdownPreview({ content, isDark = true }: MarkdownPreviewProps) {
   return (
-    <div className="prose prose-invert prose-sm max-w-none h-full overflow-auto">
+    <div className={`prose prose-sm max-w-none h-full overflow-auto ${isDark ? 'prose-invert' : ''}`}>
       <ReactMarkdown 
         remarkPlugins={[remarkGfm]}
         components={{
