@@ -367,4 +367,47 @@ console.log(greet("World"));
             <div className={`group relative h-full ${activeTab === 'edit' ? 'hidden md:block' : ''}`}>
               <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity blur-sm" />
               <div className={`relative h-full rounded-2xl border backdrop-blur-md overflow-hidden flex flex-col ${isDark ? 'border-white/10 bg-black/40' : 'border-gray-200 bg-white/70'}`}>
-                <div className={`flex items-center justify
+                <div className={`flex items-center justify-between px-4 py-3 border-b flex-shrink-0 ${isDark ? 'border-white/10 bg-white/5' : 'border-gray-200 bg-gray-50'}`}>
+                  <span className={`text-sm font-medium flex items-center gap-2 ${isDark ? 'text-white/60' : 'text-gray-700'}`}>
+                    <Eye className="w-4 h-4 text-green-400" />
+                    {t('editor.preview')}
+                  </span>
+                  <span className={`text-xs ${isDark ? 'text-white/40' : 'text-gray-500'}`}>{t('editor.rendered')}</span>
+                </div>
+                <div className="flex-1 p-4 overflow-auto">
+                  <MarkdownPreview content={markdownText} isDark={isDark} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Import Modal */}
+      {showImportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className={`p-8 rounded-2xl border max-w-md w-full mx-4 ${isDark ? 'border-white/10 bg-black/90' : 'border-gray-300 bg-white'}`}>
+            <h3 className="text-xl font-semibold mb-4">{t('editor.importTitle')}</h3>
+            <p className={`mb-6 ${isDark ? 'text-white/60' : 'text-gray-600'}`}>{t('editor.importDesc')}</p>
+            <label className={`flex flex-col items-center justify-center p-8 rounded-xl border-2 border-dashed transition-colors cursor-pointer ${isDark ? 'border-white/20 hover:border-white/40' : 'border-gray-300 hover:border-gray-400'}`}>
+              <FileUp className={`w-8 h-8 mb-3 ${isDark ? 'text-white/40' : 'text-gray-400'}`} />
+              <span className={isDark ? 'text-white/60' : 'text-gray-600'}>{t('editor.selectFile')}</span>
+              <input
+                type="file"
+                accept=".md,.txt"
+                onChange={handleFileImport}
+                className="hidden"
+              />
+            </label>
+            <button
+              onClick={() => setShowImportModal(false)}
+              className={`mt-6 w-full py-2 rounded-lg border transition-all ${isDark ? 'border-white/10 text-white/60 hover:text-white hover:border-white/30' : 'border-gray-300 text-gray-600 hover:text-gray-900 hover:border-gray-400'}`}
+            >
+              {t('editor.cancel')}
+            </button>
+          </div>
+        </div>
+      )}
+    </main>
+  );
+}

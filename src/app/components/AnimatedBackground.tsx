@@ -34,8 +34,8 @@ export default function AnimatedBackground({ theme = 'dark' }: AnimatedBackgroun
       alpha: number;
       
       constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
+        this.x = Math.random() * (canvas?.width || window.innerWidth);
+        this.y = Math.random() * (canvas?.height || window.innerHeight);
         this.vx = (Math.random() - 0.5) * 0.5;
         this.vy = (Math.random() - 0.5) * 0.5;
         this.radius = Math.random() * 2 + 1;
@@ -46,8 +46,10 @@ export default function AnimatedBackground({ theme = 'dark' }: AnimatedBackgroun
         this.x += this.vx;
         this.y += this.vy;
 
-        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        const width = canvas?.width || window.innerWidth;
+        const height = canvas?.height || window.innerHeight;
+        if (this.x < 0 || this.x > width) this.vx *= -1;
+        if (this.y < 0 || this.y > height) this.vy *= -1;
       }
 
       draw() {
