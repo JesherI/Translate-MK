@@ -12,6 +12,10 @@ export const metadata: Metadata = {
   title: "Translate-MK | Markdown ↔ Text Converter",
   description: "Real-time bidirectional Markdown to plain text converter. Auto-save, file import/export, and beautiful UI.",
   keywords: ["markdown", "converter", "text", "editor", "real-time", "localstorage"],
+  icons: {
+    icon: '/logo.svg',
+    apple: '/logo.svg',
+  },
 };
 
 export default function RootLayout({
