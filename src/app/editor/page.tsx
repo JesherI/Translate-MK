@@ -28,24 +28,39 @@ export default function Editor() {
     if (savedMarkdown) {
       setMarkdownText(savedMarkdown);
     } else {
-      // Default example content
-      const example = `# Welcome to Translate-MK
+      // Default example content - Professional documentation template
+      const example = `# Project Documentation
 
-## What is this?
-This is a **real-time Markdown preview** editor with instant rendering.
+## Overview
+This is a **professional Markdown editor** with real-time preview capabilities.
 
-## Features:
-- ⚡ Instant preview
-- 💾 Auto-save to browser
-- 📁 Import & Export files
-- 🎨 Beautiful rendering
+## Features
+| Feature | Description | Status |
+|---------|-------------|--------|
+| Real-time Preview | Instant rendering as you type | ✅ Active |
+| Auto-Save | Automatic browser storage | ✅ Active |
+| Syntax Highlight | Code blocks with formatting | ✅ Active |
+| Export Options | Multiple format support | ✅ Active |
 
-## How to use:
-1. Type Markdown on the left
-2. See formatted preview on the right
-3. Export when ready
+## Code Example
+\`\`\`javascript
+// Example function
+function greet(name) {
+  return \`Hello, \${name}!\`;
+}
 
-**Happy writing!** ✨`;
+console.log(greet("World"));
+\`\`\`
+
+## Getting Started
+1. Type your Markdown content
+2. View the rendered preview
+3. Export when satisfied
+
+> **Note:** All content is automatically saved to your browser's local storage.
+
+---
+*Built with Next.js and React* ✨`;
       setMarkdownText(example);
     }
     
