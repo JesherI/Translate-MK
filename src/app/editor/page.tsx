@@ -1,56 +1,52 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { 
-  ArrowRightLeft, 
-  FileText, 
   Code, 
   Download, 
   Upload, 
   Trash2,
   ArrowLeft,
-  FileUp
+  FileUp,
+  Eye
 } from 'lucide-react';
 import Link from 'next/link';
 import AnimatedBackground from '../components/AnimatedBackground';
+import MarkdownPreview from '../components/MarkdownPreview';
 
 export default function Editor() {
   const [markdownText, setMarkdownText] = useState<string>('');
-  const [plainText, setPlainText] = useState<string>('');
-  const [lastEdited, setLastEdited] = useState<'markdown' | 'plain'>('markdown');
   const [fileName, setFileName] = useState<string>('');
   const [showImportModal, setShowImportModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
 
   // Load from localStorage on mount
   useEffect(() => {
     const savedMarkdown = localStorage.getItem('translate-mk-markdown');
-    const savedPlain = localStorage.getItem('translate-mk-plain');
     const savedFileName = localStorage.getItem('translate-mk-filename');
     
     if (savedMarkdown) {
       setMarkdownText(savedMarkdown);
-      setPlainText(markdownToPlain(savedMarkdown));
     } else {
       // Default example content
       const example = `# Welcome to Translate-MK
 
 ## What is this?
-This is a **real-time bidirectional converter** between Markdown and plain text.
+This is a **real-time Markdown preview** editor with instant rendering.
 
 ## Features:
-- ⚡ Instant conversion
+- ⚡ Instant preview
 - 💾 Auto-save to browser
 - 📁 Import & Export files
-- 🔄 Bidirectional editing
+- 🎨 Beautiful rendering
 
 ## How to use:
-1. Type in either panel
-2. See instant results
+1. Type Markdown on the left
+2. See formatted preview on the right
 3. Export when ready
 
-Happy writing! ✨`;
+**Happy writing!** ✨`;
       setMarkdownText(example);
-      setPlainText(markdownToPlain(example));
     }
     
     if (savedFileName) {
@@ -61,60 +57,58 @@ Happy writing! ✨`;
   // Save to localStorage whenever content changes
   useEffect(() => {
     localStorage.setItem('translate-mk-markdown', markdownText);
-    localStorage.setItem('translate-mk-plain', plainText);
     localStorage.setItem('translate-mk-filename', fileName);
-  }, [markdownText, plainText, fileName]);
-
-  // Convert Markdown to Plain Text
-  const markdownToPlain = useCallback((md: string): string => {
-    if (!md) return '';
-    return md
-      .replace(/#{1,6}\s/g, '')
-      .replace(/\*\*(.*?)\*\*/g, '$1')
-      .replace(/\*(.*?)\*/g, '$1')
-      .replace(/__(.*?)__/g, '$1')
-      .replace(/_(.*?)_/g, '$1')
-      .replace(/`{3}[\s\S]*?`{3}/gm, '[code block]\n')
-      .replace(/`{3}[\s\S]*?`{3}/g, '[code block]')
-      .replace(/`([^`]+)`/g, '$1')
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-      .replace(/!\[([^\]]*)\]\([^)]+\)/g, '[image: $1]')
-      .replace(/^(\s*)[-*+]\s/gm, '$1• ')
-      .replace(/^\s*\d+\.\s/gm, '• ')
-      .replace(/\n{3,}/g, '\n\n')
-      .trim();
-  }, []);
+  }, [markdownText, fileName]);
 
   const handleMarkdownChange = (value: string) => {
     setMarkdownText(value);
-    setPlainText(markdownToPlain(value));
-    setLastEdited('markdown');
-  };
-
-  const handlePlainTextChange = (value: string) => {
-    setPlainText(value);
-    setMarkdownText(value); // When editing plain, we just sync to markdown
-    setLastEdited('plain');
   };
 
   const clearAll = () => {
-    if (confirm('¿Estás seguro de que quieres borrar todo el contenido?')) {
+    if (confirm('Are you sure you want to clear all content?')) {
       setMarkdownText('');
-      setPlainText('');
       setFileName('');
       localStorage.removeItem('translate-mk-markdown');
-      localStorage.removeItem('translate-mk-plain');
       localStorage.removeItem('translate-mk-filename');
     }
   };
 
-  const exportFile = (format: 'md' | 'txt') => {
-    const content = format === 'md' ? markdownText : plainText;
+  const exportFile = (format: 'md' | 'html') => {
+    let content = '';
+    let extension = '';
+    
+    if (format === 'md') {
+      content = markdownText;
+      extension = 'md';
+    } else if (format === 'html') {
+      content = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>${fileName || 'Document'}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; }
+    h1, h2, h3 { color: #111; }
+    code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+    pre { background: #f4f4f4; padding: 16px; border-radius: 8px; overflow-x: auto; }
+    blockquote { border-left: 4px solid #ddd; margin: 0; padding-left: 16px; color: #666; }
+    ul, ol { padding-left: 20px; }
+    a { color: #0066cc; }
+  </style>
+</head>
+<body>
+<!-- Content would be rendered Markdown here -->
+<pre style="white-space: pre-wrap;">${markdownText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+</body>
+</html>`;
+      extension = 'html';
+    }
+    
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${fileName || 'document'}.${format}`;
+    a.download = `${fileName || 'document'}.${extension}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -129,14 +123,7 @@ Happy writing! ✨`;
     reader.onload = (e) => {
       const content = e.target?.result as string;
       setFileName(file.name.replace(/\.[^/.]+$/, ''));
-      
-      if (file.name.endsWith('.md')) {
-        setMarkdownText(content);
-        setPlainText(markdownToPlain(content));
-      } else {
-        setPlainText(content);
-        setMarkdownText(content);
-      }
+      setMarkdownText(content);
       setShowImportModal(false);
     };
     reader.readAsText(file);
@@ -145,18 +132,12 @@ Happy writing! ✨`;
   const dropFile = (e: React.DragEvent) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-    if (file && (file.name.endsWith('.md') || file.name.endsWith('.txt'))) {
+    if (file && (file.name.endsWith('.md') || file.name.endsWith('.txt') || file.name.endsWith('.html'))) {
       const reader = new FileReader();
       reader.onload = (event) => {
         const content = event.target?.result as string;
         setFileName(file.name.replace(/\.[^/.]+$/, ''));
-        if (file.name.endsWith('.md')) {
-          setMarkdownText(content);
-          setPlainText(markdownToPlain(content));
-        } else {
-          setPlainText(content);
-          setMarkdownText(content);
-        }
+        setMarkdownText(content);
       };
       reader.readAsText(file);
     }
@@ -213,14 +194,6 @@ Happy writing! ✨`;
                 <Download className="w-4 h-4" />
                 .md
               </button>
-              <div className="w-px h-4 bg-white/10" />
-              <button
-                onClick={() => exportFile('txt')}
-                className="flex items-center gap-1 px-3 py-1.5 text-white/60 hover:text-white hover:bg-white/5 transition-all text-sm"
-              >
-                <Download className="w-4 h-4" />
-                .txt
-              </button>
             </div>
             <button
               onClick={clearAll}
@@ -235,12 +208,38 @@ Happy writing! ✨`;
       {/* Editor */}
       <section className="py-6 px-6 relative z-10">
         <div className="max-w-7xl mx-auto">
-          {/* Info Bar */}
-          <div className="flex items-center justify-between mb-4 text-sm text-white/40">
+          {/* Mobile Tabs */}
+          <div className="md:hidden flex items-center gap-2 mb-4 p-1 rounded-xl border border-white/10 bg-white/5">
+            <button
+              onClick={() => setActiveTab('edit')}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm transition-all ${
+                activeTab === 'edit' 
+                  ? 'bg-white text-black' 
+                  : 'text-white/60 hover:text-white'
+              }`}
+            >
+              <Code className="w-4 h-4" />
+              Edit
+            </button>
+            <button
+              onClick={() => setActiveTab('preview')}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm transition-all ${
+                activeTab === 'preview' 
+                  ? 'bg-white text-black' 
+                  : 'text-white/60 hover:text-white'
+              }`}
+            >
+              <Eye className="w-4 h-4" />
+              Preview
+            </button>
+          </div>
+
+          {/* Info Bar - Desktop only */}
+          <div className="hidden md:flex items-center justify-between mb-4 text-sm text-white/40">
             <div className="flex items-center gap-4">
-              <span>Markdown: {markdownText.length} chars</span>
+              <span>{markdownText.length} characters</span>
               <span>•</span>
-              <span>Plain: {plainText.length} chars</span>
+              <span>{markdownText.split('\n').length} lines</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
@@ -251,44 +250,40 @@ Happy writing! ✨`;
           {/* Editor Grid */}
           <div className="grid md:grid-cols-2 gap-6">
             {/* Markdown Input */}
-            <div className="group relative">
+            <div className={`group relative ${activeTab === 'preview' ? 'hidden md:block' : ''}`}>
               <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity blur-sm" />
-              <div className="relative rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md overflow-hidden">
+              <div className="relative rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md overflow-hidden h-[calc(100vh-240px)] md:h-[calc(100vh-280px)]">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/5">
                   <span className="text-sm font-medium text-white/60 flex items-center gap-2">
                     <Code className="w-4 h-4 text-blue-400" />
                     Markdown Input
                   </span>
-                  <span className="text-xs text-white/40">Supports: # ** * ` []</span>
+                  <span className="text-xs text-white/40">Supports: # ** * ` [] -</span>
                 </div>
                 <textarea
                   value={markdownText}
                   onChange={(e) => handleMarkdownChange(e.target.value)}
-                  placeholder="# Start typing your markdown here...\n\n## Features\n- **Bold** and *italic* text\n- `Code` blocks\n- [Links](url)\n- And more!"
-                  className="w-full h-[calc(100vh-280px)] p-4 bg-transparent text-sm font-mono leading-relaxed resize-none focus:outline-none text-white/90 placeholder:text-white/20"
+                  placeholder="# Start typing your markdown here...\n\n## Features\n- **Bold** and *italic* text\n- `Code` blocks\n- [Links](url)\n- Tables, lists, and more!"
+                  className="w-full h-[calc(100%-48px)] p-4 bg-transparent text-sm font-mono leading-relaxed resize-none focus:outline-none text-white/90 placeholder:text-white/20"
                   spellCheck={false}
                 />
               </div>
             </div>
 
-            {/* Plain Text Output */}
-            <div className="group relative">
+            {/* Preview Output */}
+            <div className={`group relative ${activeTab === 'edit' ? 'hidden md:block' : ''}`}>
               <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity blur-sm" />
-              <div className="relative rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md overflow-hidden">
+              <div className="relative rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md overflow-hidden h-[calc(100vh-240px)] md:h-[calc(100vh-280px)]">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/5">
                   <span className="text-sm font-medium text-white/60 flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-green-400" />
-                    Plain Text Output
+                    <Eye className="w-4 h-4 text-green-400" />
+                    Preview
                   </span>
-                  <span className="text-xs text-white/40">Clean, formatted text</span>
+                  <span className="text-xs text-white/40">Rendered Markdown</span>
                 </div>
-                <textarea
-                  value={plainText}
-                  onChange={(e) => handlePlainTextChange(e.target.value)}
-                  placeholder="Your converted plain text will appear here in real-time..."
-                  className="w-full h-[calc(100vh-280px)] p-4 bg-transparent text-sm leading-relaxed resize-none focus:outline-none text-white/90 placeholder:text-white/20"
-                  spellCheck={false}
-                />
+                <div className="h-[calc(100%-48px)] p-4 overflow-auto">
+                  <MarkdownPreview content={markdownText} />
+                </div>
               </div>
             </div>
           </div>
@@ -297,7 +292,7 @@ Happy writing! ✨`;
           <div className="mt-6 grid md:grid-cols-3 gap-4 text-sm">
             <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
               <h4 className="font-medium text-white mb-1">📝 Markdown Syntax</h4>
-              <p className="text-white/40">Use # for headers, **bold**, *italic*, `code`</p>
+              <p className="text-white/40">Use # for headers, **bold**, *italic*, `code`, - for lists</p>
             </div>
             <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
               <h4 className="font-medium text-white mb-1">💾 Auto-Save</h4>
