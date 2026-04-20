@@ -1,25 +1,35 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { translations, Language, Translations } from '../i18n/translations';
+import { translations, Language } from '../i18n/translations';
 
 export function useI18n() {
   const [language, setLanguageState] = useState<Language>('en');
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load language from localStorage on mount
+  // Load language from localStorage on mount (client-side only)
   useEffect(() => {
-    const savedLang = localStorage.getItem('translate-mk-language') as Language;
-    if (savedLang && (savedLang === 'en' || savedLang === 'es')) {
-      setLanguageState(savedLang);
+    if (typeof window === 'undefined') return;
+    
+    try {
+      const savedLang = localStorage.getItem('translate-mk-language') as Language;
+      if (savedLang && (savedLang === 'en' || savedLang === 'es')) {
+        setLanguageState(savedLang);
+      }
+    } catch (e) {
+      console.error('Error loading language:', e);
     }
     setIsLoaded(true);
   }, []);
 
-  // Save to localStorage when language changes
+  // Save to localStorage when language changes (client-side only)
   useEffect(() => {
-    if (isLoaded) {
+    if (!isLoaded || typeof window === 'undefined') return;
+    
+    try {
       localStorage.setItem('translate-mk-language', language);
+    } catch (e) {
+      console.error('Error saving language:', e);
     }
   }, [language, isLoaded]);
 
@@ -55,7 +65,18 @@ export function useI18n() {
   );
 
   const toggleLanguage = useCallback(() => {
-    setLanguageState(prev => prev === 'en' ? 'es' : 'en');
+    setLanguageState(prev => {
+      const newLang = prev === 'en' ? 'es' : 'en';
+      // Immediate save to localStorage
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('translate-mk-language', newLang);
+        } catch (e) {
+          console.error('Error saving language:', e);
+        }
+      }
+      return newLang;
+    });
   }, []);
 
   return {
